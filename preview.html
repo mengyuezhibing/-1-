@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天应用预览</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.error {
+            background-color: #fee;
+            border-left: 4px solid #f44336;
+            color: #d32f2f;
+        }
+        .project-info {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .steps {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .recommendation {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .mock-app {
+            margin-top: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .mock-header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .mock-body {
+            padding: 20px;
+            background-color: #fafafa;
+        }
+        .mock-login {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .mock-input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .mock-button {
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .mock-button:hover {
+            background-color: #1976D2;
+        }
+        .mock-chat {
+            border: 1px solid #ddd;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        .mock-message {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #e3f2fd;
+            border-radius: 4px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .mock-message.user {
+            margin-left: auto;
+            background-color: #c8e6c9;
+        }
+        .mock-input-area {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .mock-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>聊天应用预览</h1>
+        
+        <div class="status error">
+            <strong>错误状态:</strong> net::ERR_CONNECTION_REFUSED http://localhost:5000/login
+            <p>服务器当前无法启动，检测到Python环境配置异常。</p>
+        </div>
+        
+        <div class="project-info">
+            <h2>项目信息</h2>
+            <p>这是一个基于Flask和Socket.IO的聊天应用程序，包含以下主要功能：</p>
+            <ul>
+                <li>用户登录和认证</li>
+                <li>实时聊天功能</li>
+                <li>新闻展示功能</li>
+                <li>用户会话管理</li>
+            </ul>
+        </div>
+        
+        <div class="mock-app">
+            <div class="mock-header">聊天应用模拟界面</div>
+            <div class="mock-body">
+                <!-- 模拟登录界面 -->
+                <div class="mock-login">
+                    <h3 style="text-align: center;">登录界面模拟</h3>
+                    <input type="text" class="mock-input" placeholder="用户名">
+                    <input type="password" class="mock-input" placeholder="密码">
+                    <button class="mock-button">登录</button>
+                </div>
+                
+                <!-- 模拟聊天界面 -->
+                <div style="margin-top: 30px;">
+                    <h3 style="text-align: center;">聊天界面模拟</h3>
+                    <div class="mock-chat">
+                        <div class="mock-message">欢迎来到聊天室！</div>
+                        <div class="mock-message user">你好，这是一条用户消息</div>
+                        <div class="mock-message">这是一条系统回复消息</div>
+                        <div class="mock-message">[用户1] 大家好！</div>
+                        <div class="mock-message">[用户2] 你好，有什么可以帮助你的？</div>
+                    </div>
+                    <div class="mock-input-area">
+                        <input type="text" placeholder="输入消息...">
+                        <button class="mock-button">发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="steps">
+            <h2>诊断结果</h2>
+            <p>经过系统诊断，发现以下问题：</p>
+            <ul>
+                <li>Python环境存在配置问题，执行命令时出现乱码错误</li>
+                <li>尝试运行Python脚本时返回错误代码9009</li>
+                <li>存在多个Python进程在后台运行</li>
+                <li>无法正常启动Flask服务器</li>
+            </ul>
+        </div>
+        
+        <div class="recommendation">
+            <h2>解决建议</h2>
+            <p>为了修复当前问题，请按照以下步骤操作：</p>
+            <ol>
+                <li>首先结束所有Python进程：
+                    <pre>taskkill /F /IM python.exe</pre>
+                </li>
+                <li>重新安装Python，确保安装路径不包含中文字符或特殊符号</li>
+                <li>修复系统环境变量PATH设置</li>
+                <li>重新安装项目依赖：
+                    <pre>pip install -r requirements.txt</pre>
+                </li>
+                <li>重启系统后尝试再次启动应用</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        // 简单的交互效果
+        document.querySelectorAll('.mock-button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.style.backgroundColor = '#1565C0';
+                setTimeout(() => {
+                    this.style.backgroundColor = '#1976D2';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

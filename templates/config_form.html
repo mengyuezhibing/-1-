@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务器配置管理</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .server-list {
+            margin-top: 20px;
+        }
+        .server-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            gap: 10px;
+        }
+        .server-item .name-input {
+            width: 150px;
+        }
+        .server-item .url-input {
+            flex: 1;
+        }
+        .button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .btn-warning {
+            background-color: #f39c12;
+        }
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .category {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .category h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 16px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 8px;
+        }
+        .category-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>服务器配置管理</h1>
+        
+        <div class="note">
+            <strong>注意：</strong> 请输入有效的服务器地址（支持http://、https://或tcp://）。每个服务器可以设置名称以便区分。
+        </div>
+        
+        <button class="button btn-warning" onclick="addNewCategory()">添加新分类</button>
+        
+        <div id="categories-container">
+            <!-- 分类列表将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="actions">
+            <button class="button btn-success" onclick="saveConfig()">保存配置</button>
+            <button class="button btn-secondary" onclick="loadConfig()">刷新配置</button>
+        </div>
+        
+        <div id="status-message" class="status-message"></div>
+    </div>
+    
+    <script>
+        // 默认分类
+        const defaultCategories = ['本地', '局域网', '公网'];
+        
+        // 加载当前配置
+        function loadConfig() {
+            fetch('/api/get_config')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('categories-container');
+                    container.innerHTML = '';
+                    
+                    // 获取服务器配置，如果没有则使用空对象
+                    const servers = data.servers || {};
+                    
+                    // 确保所有默认分类都存在
+                    defaultCategories.forEach(category => {
+                        if (!servers[category]) {
+                            servers[category] = [];
+                        }
+                    });
+                    
+                    // 遍历所有分类
+                    Object.keys(servers).forEach(category => {
+                        addCategory(category, servers[category]);
+                    });
+                    
+                    // 如果没有任何分类，添加默认分类
+                    if (container.children.length === 0) {
+                        defaultCategories.forEach(category => {
+                            addCategory(category, []);
+                        });
+                    }
+                    
+                    showMessage('配置已刷新', 'success');
+                })
+                .catch(error => {
+                    console.error('加载配置失败:', error);
+                    showMessage('加载配置失败，请重试', 'error');
+                    // 加载失败时，添加默认分类
+                    const container = document.getElementById('categories-container');
+                    container.innerHTML = '';
+                    defaultCategories.forEach(category => {
+                        addCategory(category, []);
+                    });
+                });
+        }
+        
+        // 添加分类
+        function addCategory(categoryName, servers = []) {
+            const container = document.getElementById('categories-container');
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'category';
+            categoryDiv.dataset.category = categoryName;
+            
+            categoryDiv.innerHTML = `
+                <h3>${categoryName}</h3>
+                <div class="servers-container" id="servers-${categoryName}">
+                    <!-- 服务器列表将动态生成 -->
+                </div>
+                <div class="category-actions">
+                    <button class="button btn-success" onclick="addServerToCategory('${categoryName}')">添加服务器</button>
+                </div>
+            `;
+            
+            container.appendChild(categoryDiv);
+            
+            // 添加服务器项
+            if (servers.length > 0) {
+                servers.forEach((server, index) => {
+                    addServerToDOM(categoryName, server.name || `服务器${index + 1}`, server.url || '', index);
+                });
+            } else {
+                // 添加一个空的服务器项
+                addServerToDOM(categoryName, '', '', 0);
+            }
+        }
+        
+        // 添加新分类
+        function addNewCategory() {
+            // 创建自定义输入模态框函数
+            function showInputModal(title, placeholder, callback) {
+                // 检查是否已存在输入模态框
+                let modal = document.getElementById('input-modal');
+                if (modal) {
+                    modal.remove();
+                }
+                
+                // 创建新的模态框
+                modal = document.createElement('div');
+                modal.id = 'input-modal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    width: 90%;
+                    max-width: 400px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                `;
+                
+                const modalTitle = document.createElement('h3');
+                modalTitle.textContent = title;
+                modalTitle.style.marginTop = '0';
+                
+                const inputField = document.createElement('input');
+                inputField.type = 'text';
+                inputField.id = 'modal-input';
+                inputField.placeholder = placeholder;
+                inputField.style.cssText = `
+                    width: 100%;
+                    padding: 10px;
+                    margin: 10px 0;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                `;
+                
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.cssText = `
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 15px;
+                `;
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = '取消';
+                cancelBtn.style.cssText = `
+                    padding: 8px 16px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    background-color: #f5f5f5;
+                    cursor: pointer;
+                `;
+                cancelBtn.addEventListener('click', function() {
+                    modal.remove();
+                    if (callback) callback(null);
+                });
+                
+                const confirmBtn = document.createElement('button');
+                confirmBtn.textContent = '确定';
+                confirmBtn.style.cssText = `
+                    padding: 8px 16px;
+                    border: none;
+                    border-radius: 4px;
+                    background-color: #6200ea;
+                    color: white;
+                    cursor: pointer;
+                `;
+                confirmBtn.addEventListener('click', function() {
+                    const value = inputField.value.trim();
+                    modal.remove();
+                    if (callback) callback(value);
+                });
+                
+                buttonContainer.appendChild(cancelBtn);
+                buttonContainer.appendChild(confirmBtn);
+                
+                modalContent.appendChild(modalTitle);
+                modalContent.appendChild(inputField);
+                modalContent.appendChild(buttonContainer);
+                modal.appendChild(modalContent);
+                
+                // 添加键盘事件支持
+                inputField.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        confirmBtn.click();
+                    }
+                });
+                
+                // 添加点击外部关闭支持
+                modal.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        modal.remove();
+                        if (callback) callback(null);
+                    }
+                });
+                
+                document.body.appendChild(modal);
+                // 自动聚焦输入框
+                inputField.focus();
+            }
+            
+            showInputModal('请输入分类名称:', '', function(categoryName) {
+                if (categoryName && categoryName.trim()) {
+                // 检查分类是否已存在
+                const existingCategory = document.querySelector(`.category[data-category="${categoryName}"]`);
+                if (existingCategory) {
+                    showMessage('该分类已存在！', 'error');
+                    return;
+                }
+                addCategory(categoryName.trim(), []);
+                showMessage('分类已添加', 'success');
+            }
+        }
+        
+        // 添加服务器到分类
+        function addServerToCategory(categoryName) {
+            const container = document.getElementById(`servers-${categoryName}`);
+            const index = container.children.length;
+            addServerToDOM(categoryName, `服务器${index + 1}`, '', index);
+        }
+        
+        // 添加服务器到DOM
+        function addServerToDOM(categoryName, serverName, serverUrl, index) {
+            const container = document.getElementById(`servers-${categoryName}`);
+            const serverItem = document.createElement('div');
+            serverItem.className = 'server-item';
+            serverItem.dataset.index = index;
+            
+            serverItem.innerHTML = `
+                <input type="text" class="name-input" value="${serverName}" placeholder="服务器名称">
+                <input type="text" class="url-input" value="${serverUrl}" placeholder="服务器地址">
+                <button class="button btn-danger" onclick="removeServer(this)">删除</button>
+            `;
+            
+            container.appendChild(serverItem);
+        }
+        
+        // 删除服务器
+        function removeServer(button) {
+            const serverItem = button.closest('.server-item');
+            const container = serverItem.closest('.servers-container');
+            
+            // 确保每个分类至少保留一个服务器项
+            if (container.children.length > 1) {
+                serverItem.remove();
+                showMessage('服务器已删除', 'success');
+                // 重新更新索引
+                updateServerIndices(container);
+            } else {
+                // 如果只有一个服务器项，清空它而不是删除
+                serverItem.querySelector('.name-input').value = '';
+                serverItem.querySelector('.url-input').value = '';
+                showMessage('已清空服务器信息', 'success');
+            }
+        }
+        
+        // 更新服务器索引
+        function updateServerIndices(container) {
+            const serverItems = container.querySelectorAll('.server-item');
+            serverItems.forEach((item, index) => {
+                item.dataset.index = index;
+            });
+        }
+        
+        // 保存配置
+        function saveConfig() {
+            const categories = document.querySelectorAll('.category');
+            const servers = {};
+            
+            categories.forEach(category => {
+                const categoryName = category.dataset.category;
+                const serverItems = category.querySelectorAll('.server-item');
+                const categoryServers = [];
+                
+                serverItems.forEach(item => {
+                    const name = item.querySelector('.name-input').value.trim();
+                    const url = item.querySelector('.url-input').value.trim();
+                    
+                    if (url) { // 只保存有URL的服务器
+                        // 验证URL格式
+                        if (!/^(https?|tcp):\/\//i.test(url)) {
+                            showMessage(`无效的URL格式: ${url}`, 'error');
+                            return;
+                        }
+                        
+                        categoryServers.push({
+                            name: name || `服务器${categoryServers.length + 1}`,
+                            url: url
+                        });
+                    }
+                });
+                
+                if (categoryServers.length > 0) {
+                    servers[categoryName] = categoryServers;
+                }
+            });
+            
+            fetch('/api/save_config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ servers })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('配置已成功保存', 'success');
+                    // 重新加载配置以更新显示
+                    loadConfig();
+                } else {
+                    showMessage('保存失败：' + (data.message || '未知错误'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('保存配置失败:', error);
+                showMessage('保存配置失败，请重试', 'error');
+            });
+        }
+        
+        // 显示消息
+        function showMessage(message, type) {
+            const statusElem = document.getElementById('status-message');
+            statusElem.textContent = message;
+            statusElem.className = 'status-message ' + type;
+            statusElem.style.display = 'block';
+            
+            setTimeout(() => {
+                statusElem.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 初始加载
+        document.addEventListener('DOMContentLoaded', loadConfig);
+    </script>
+</body>
+</html>

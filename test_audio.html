@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频播放测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .music-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+        .music-controls {
+            margin-top: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>音频播放测试</h1>
+    
+    <div class="music-card">
+        <h3>春天里 - 汪峰</h3>
+        <div class="music-controls">
+            <button onclick="playAudio('https://goog.gl/dLk22', 'song1')">播放</button>
+            <button onclick="pauseAudio('song1')">暂停</button>
+            <button onclick="stopAudio('song1')">停止</button>
+        </div>
+        <div id="song1-status"></div>
+        <div id="song1-error" class="error"></div>
+    </div>
+    
+    <div class="music-card">
+        <h3>测试音频2</h3>
+        <div class="music-controls">
+            <button onclick="playAudio('https://goog.gl/dLk22', 'song2')">播放</button>
+            <button onclick="pauseAudio('song2')">暂停</button>
+            <button onclick="stopAudio('song2')">停止</button>
+        </div>
+        <div id="song2-status"></div>
+        <div id="song2-error" class="error"></div>
+    </div>
+
+    <script>
+        // 全局变量来跟踪音频状态
+        let activeAudio = null;
+        let activeAudioId = null;
+        let isAudioStopping = false;
+        let isAudioOperationInProgress = false;
+
+        // 显示状态
+        function showStatus(audioId, status) {
+            document.getElementById(audioId + '-status').textContent = status;
+        }
+
+        // 显示错误
+        function showError(audioId, error) {
+            document.getElementById(audioId + '-error').textContent = '音频播放失败: ' + error;
+        }
+
+        // 清除错误
+        function clearError(audioId) {
+            document.getElementById(audioId + '-error').textContent = '';
+        }
+
+        // 停止当前活跃的音频
+        function stopActiveAudio() {
+            if (!activeAudio) return;
+            
+            isAudioStopping = true;
+            showStatus(activeAudioId, '停止中...');
+            
+            try {
+                // 先暂停
+                activeAudio.pause();
+                // 重置播放时间
+                activeAudio.currentTime = 0;
+                // 移除事件监听器
+                activeAudio.removeEventListener('play', onAudioPlay);
+                activeAudio.removeEventListener('pause', onAudioPause);
+                activeAudio.removeEventListener('error', onAudioError);
+                // 清空源
+                activeAudio.src = '';
+                // 加载空源以确保完全重置
+                activeAudio.load();
+                
+                showStatus(activeAudioId, '已停止');
+            } catch (error) {
+                console.error('停止音频时出错:', error);
+                showError(activeAudioId, error.message);
+            } finally {
+                // 重置状态
+                activeAudio = null;
+                activeAudioId = null;
+                setTimeout(() => {
+                    isAudioStopping = false;
+                }, 100);
+            }
+        }
+
+        // 音频播放事件
+        function onAudioPlay() {
+            showStatus(activeAudioId, '播放中');
+            clearError(activeAudioId);
+        }
+
+        // 音频暂停事件
+        function onAudioPause() {
+            showStatus(activeAudioId, '已暂停');
+        }
+
+        // 音频错误事件
+        function onAudioError(error) {
+            console.error('音频错误:', error);
+            showError(activeAudioId, error.message || '未知错误');
+        }
+
+        // 播放音频
+        async function playAudio(url, audioId) {
+            // 检查是否有正在进行的音频操作
+            if (isAudioOperationInProgress) {
+                console.log('有音频操作正在进行，请稍候...');
+                showStatus(audioId, '等待中...');
+                // 添加延迟后重试
+                setTimeout(() => {
+                    playAudio(url, audioId);
+                }, 300);
+                return;
+            }
+
+            // 标记开始新的音频操作
+            isAudioOperationInProgress = true;
+
+            try {
+                // 如果正在播放其他音频，先停止
+                if (activeAudio && activeAudioId !== audioId) {
+                    stopActiveAudio();
+                    // 等待旧音频完全停止
+                    while (isAudioStopping) {
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                }
+
+                // 如果要播放的是当前活跃的音频
+                if (activeAudio && activeAudioId === audioId) {
+                    // 检查当前状态
+                    if (activeAudio.paused) {
+                        // 如果是暂停状态，恢复播放
+                        await activeAudio.play();
+                    }
+                    return;
+                }
+
+                // 创建新的音频元素
+                const audioElement = new Audio(url);
+                audioElement.type = 'audio/mp3';
+
+                // 添加事件监听器
+                audioElement.addEventListener('play', onAudioPlay);
+                audioElement.addEventListener('pause', onAudioPause);
+                audioElement.addEventListener('error', onAudioError);
+
+                // 标记为活跃音频
+                activeAudio = audioElement;
+                activeAudioId = audioId;
+
+                showStatus(audioId, '准备播放...');
+                clearError(audioId);
+
+                // 使用setTimeout确保音频元素已正确设置
+                setTimeout(async () => {
+                    try {
+                        // 尝试播放
+                        await activeAudio.play();
+                        console.log('音频播放成功');
+                    } catch (error) {
+                        console.error('播放音频时出错:', error);
+                        showError(audioId, error.message);
+                    } finally {
+                        // 重置操作状态
+                        isAudioOperationInProgress = false;
+                    }
+                }, 200);
+
+            } catch (error) {
+                console.error('播放音频时出错:', error);
+                showError(audioId, error.message);
+                isAudioOperationInProgress = false;
+            }
+        }
+
+        // 暂停音频
+        function pauseAudio(audioId) {
+            if (activeAudio && activeAudioId === audioId && !activeAudio.paused) {
+                activeAudio.pause();
+            }
+        }
+
+        // 停止音频
+        function stopAudio(audioId) {
+            if (activeAudio && activeAudioId === audioId) {
+                stopActiveAudio();
+            }
+        }
+    </script>
+</body>
+</html>

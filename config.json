@@ -1,0 +1,42 @@
+{
+    "servers": {
+        "本地": [
+            {
+                "name": "本地服务-5000",
+                "url": "http://localhost:5000"
+            },
+            {
+                "name": "本地服务-9999",
+                "url": "http://localhost:9999"
+            }
+        ],
+        "局域网": [
+            {
+                "name": "局域网服务",
+                "url": "http://10.11.95.180:9999"
+            }
+        ],
+        "公网": [
+            {
+                "name": "隧道域名1",
+                "url": "http://mengyue010.free.idcfengye.com"
+            },
+            {
+                "name": "隧道域名2",
+                "url": "tcp://free.idcfengye.com:10245"
+            },
+            {
+                "name": "公共服务器1",
+                "url": "http://chat.public-server.com"
+            },
+            {
+                "name": "公共服务器2",
+                "url": "http://im.example.org"
+            },
+            {
+                "name": "公共服务器3",
+                "url": "http://talk.online-service.net"
+            }
+        ]
+    }
+}

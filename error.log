@@ -1,0 +1,33 @@
+(1832) wsgi starting up on http://0.0.0.0:9999
+(1832) accepted ('127.0.0.1', 64269)
+127.0.0.1 - - [29/Nov/2025 22:45:01] "GET /socket.io/?EIO=4&transport=polling&t=PhG4mcH HTTP/1.1" 200 300 0.000000
+127.0.0.1 - - [29/Nov/2025 22:45:01] "POST /socket.io/?EIO=4&transport=polling&t=PhG4mx7&sid=6pn2VI2qOhCSyOE_AAAA HTTP/1.1" 200 219 0.001003
+127.0.0.1 - - [29/Nov/2025 22:45:01] "GET /socket.io/?EIO=4&transport=polling&t=PhG4mx8&sid=6pn2VI2qOhCSyOE_AAAA HTTP/1.1" 200 213 0.000000
+(1832) accepted ('127.0.0.1', 64270)
+(1832) accepted ('127.0.0.1', 64277)
+(1832) accepted ('127.0.0.1', 64278)
+127.0.0.1 - - [29/Nov/2025 22:45:01] "GET /socket.io/?EIO=4&transport=polling&t=PhG4mxD&sid=6pn2VI2qOhCSyOE_AAAA HTTP/1.1" 200 181 0.307172
+127.0.0.1 - - [29/Nov/2025 22:49:59] "GET /socket.io/?EIO=4&transport=websocket&sid=6pn2VI2qOhCSyOE_AAAA HTTP/1.1" 200 0 297.868806
+(1832) accepted ('127.0.0.1', 65212)
+127.0.0.1 - - [29/Nov/2025 22:50:00] "GET / HTTP/1.1" 200 4347 0.004511
+127.0.0.1 - - [29/Nov/2025 22:50:02] "POST /check_username HTTP/1.1" 200 152 0.000999
+127.0.0.1 - - [29/Nov/2025 22:50:02] "GET /chat?username=%E6%A2%A6%E6%9C%88%E4%B9%8B%E5%86%B0 HTTP/1.1" 200 14916 0.003199
+127.0.0.1 - - [29/Nov/2025 22:50:02] "GET /socket.io/?EIO=4&transport=polling&t=PhG5wZz HTTP/1.1" 200 300 0.000503
+127.0.0.1 - - [29/Nov/2025 22:50:02] "POST /socket.io/?EIO=4&transport=polling&t=PhG5wa9&sid=9hqwN6kdvErzXhAVAAAC HTTP/1.1" 200 219 0.000999
+127.0.0.1 - - [29/Nov/2025 22:50:02] "GET /socket.io/?EIO=4&transport=polling&t=PhG5waA&sid=9hqwN6kdvErzXhAVAAAC HTTP/1.1" 200 213 0.000000
+127.0.0.1 - - [29/Nov/2025 22:50:02] "POST /socket.io/?EIO=4&transport=polling&t=PhG5waZ.0&sid=9hqwN6kdvErzXhAVAAAC HTTP/1.1" 200 219 0.000000
+127.0.0.1 - - [29/Nov/2025 22:50:02] "GET /socket.io/?EIO=4&transport=polling&t=PhG5waZ&sid=9hqwN6kdvErzXhAVAAAC HTTP/1.1" 200 308 0.001004
+(1832) accepted ('127.0.0.1', 65224)
+127.0.0.1 - - [29/Nov/2025 22:50:03] "GET /socket.io/?EIO=4&transport=polling&t=PhG5wap&sid=9hqwN6kdvErzXhAVAAAC HTTP/1.1" 200 181 0.275026
+127.0.0.1 - - [29/Nov/2025 22:53:41] "GET / HTTP/1.1" 200 4347 0.002093
+127.0.0.1 - - [29/Nov/2025 22:53:44] "GET /socket.io/?EIO=4&transport=websocket&sid=9hqwN6kdvErzXhAVAAAC HTTP/1.1" 200 0 221.189613
+127.0.0.1 - - [29/Nov/2025 22:53:48] "POST /check_username HTTP/1.1" 200 152 0.001122
+127.0.0.1 - - [29/Nov/2025 22:53:48] "GET /chat?username=%E6%A2%A6%E6%9C%88%E4%B9%8B%E5%86%B0 HTTP/1.1" 200 14916 0.001001
+127.0.0.1 - - [29/Nov/2025 22:53:48] "GET /socket.io/?EIO=4&transport=polling&t=PhG6nay HTTP/1.1" 200 300 0.000000
+127.0.0.1 - - [29/Nov/2025 22:53:48] "POST /socket.io/?EIO=4&transport=polling&t=PhG6nb5&sid=cCTZUpR4O8u9lYInAAAE HTTP/1.1" 200 219 0.001503
+127.0.0.1 - - [29/Nov/2025 22:53:48] "GET /socket.io/?EIO=4&transport=polling&t=PhG6nb5.0&sid=cCTZUpR4O8u9lYInAAAE HTTP/1.1" 200 213 0.001003
+127.0.0.1 - - [29/Nov/2025 22:53:48] "POST /socket.io/?EIO=4&transport=polling&t=PhG6nbV.0&sid=cCTZUpR4O8u9lYInAAAE HTTP/1.1" 200 219 0.001000
+127.0.0.1 - - [29/Nov/2025 22:53:48] "GET /socket.io/?EIO=4&transport=polling&t=PhG6nbV&sid=cCTZUpR4O8u9lYInAAAE HTTP/1.1" 200 308 0.006005
+(1832) accepted ('127.0.0.1', 49570)
+127.0.0.1 - - [29/Nov/2025 22:53:48] "GET /socket.io/?EIO=4&transport=polling&t=PhG6nbv&sid=cCTZUpR4O8u9lYInAAAE HTTP/1.1" 200 181 0.264566
+127.0.0.1 - - [29/Nov/2025 23:01:30] "GET /socket.io/?EIO=4&transport=websocket&sid=cCTZUpR4O8u9lYInAAAE HTTP/1.1" 200 0 461.903862

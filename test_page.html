@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面</title>
+    <style>
+        /* 使用与GovInfoToFileSystem-main项目类似的深色主题样式 */
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #e2e8f0;
+            --accent-color: #0ea5e9;
+            --secondary-color: #94a3b8;
+            --border-color: #334155;
+            --success-color: #10b981;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        p {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-box {
+            padding: 1.5rem;
+            background-color: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin: 1.5rem 0;
+        }
+        
+        .info-box h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: rgba(15, 23, 42, 0.8);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        
+        pre {
+            background-color: rgba(15, 23, 42, 0.8);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+        
+        .success {
+            color: var(--success-color);
+        }
+        
+        .note {
+            color: var(--secondary-color);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>测试页面</h1>
+        
+        <p>这个页面展示了与GovInfoToFileSystem-main项目类似的深色主题样式。</p>
+        
+        <div class="info-box">
+            <h2>服务启动说明</h2>
+            <p>由于环境限制，无法直接在当前环境中启动Python服务。要在本地环境运行服务，请按照以下步骤操作：</p>
+            <pre><code># 1. 确保安装了必要的依赖
+pip install flask flask-socketio
+
+# 2. 运行修改后的app.py（使用threading模式）
+python app.py
+
+# 或者运行简化的测试应用
+python minimal_app.py</code></pre>
+            <p class="note">注意：在本地环境中，建议使用threading模式而不是eventlet模式，以避免可能的兼容性问题。</p>
+        </div>
+        
+        <div class="info-box">
+            <h2>深色主题样式</h2>
+            <p>这个页面使用了CSS变量来管理颜色主题，与GovInfoToFileSystem-main项目的设计风格一致。主要特点包括：</p>
+            <ul>
+                <li>深色背景：<code>#0f172a</code></li>
+                <li>卡片背景：<code>#1e293b</code></li>
+                <li>文本颜色：<code>#e2e8f0</code></li>
+                <li>强调色：<code>#0ea5e9</code></li>
+            </ul>
+            <p>这种设计提供了良好的视觉对比度和现代感。</p>
+        </div>
+        
+        <p>您可以直接在浏览器中打开此HTML文件查看效果。</p>
+    </div>
+</body>
+</html>

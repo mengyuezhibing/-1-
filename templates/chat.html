@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亚托莉 - 聊天室</title>
+    <style>
+        /* CSS Variables for Theme */
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #e2e8f0;
+            --accent-color: #0ea5e9;
+            --secondary-color: #94a3b8;
+            --border-color: #334155;
+            --success-color: #10b981;
+            --message-own: #0369a1;
+            --message-other: #334155;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            background-color: var(--card-bg);
+            color: var(--accent-color);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: transparent;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: transparent;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            background-color: transparent;
+            border-radius: 12px;
+            max-width: 70%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .message:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .message.own {
+            margin-left: auto;
+            background-color: var(--message-own);
+        }
+        
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+        
+        .message-content {
+            word-wrap: break-word;
+            line-height: 1.5;
+            color: var(--text-color);
+        }
+        
+        .message-content iframe {
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .message-content iframe:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        @media (max-width: 768px) {
+            .message-content iframe {
+                width: 100% !important;
+                height: 280px !important;
+            }
+        }
+        
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+        }
+        
+        .function-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .function-buttons button {
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        button {
+            padding: 12px 20px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            background-color: #0284c7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .user-list {
+            width: 250px;
+            background-color: transparent;
+            margin: 10px 10px 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+        
+        .user-list-header {
+            padding: 15px;
+            background-color: transparent;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        .users {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: transparent;
+        }
+        
+        .user {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: transparent;
+            border-radius: 5px;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        
+        .user:hover {
+            background-color: var(--message-other);
+        }
+        
+        .emoji-btn {
+            background-color: var(--accent-color);
+        }
+        
+        .emoji-btn:hover {
+            background-color: #0284c7;
+        }
+        
+        .function-btn {
+            background-color: var(--border-color);
+            font-size: 14px;
+            padding: 12px 10px;
+        }
+        
+        .function-btn:hover {
+            background-color: var(--message-other);
+        }
+        
+        /* 天气背景样式 - 沉浸式体验 */
+        .weather-sunny {
+            background-image: linear-gradient(135deg, #FFEB3B 0%, #FFC107 50%, #FF9800 100%);
+            animation: sunny-sky 30s infinite linear;
+        }
+        
+        .weather-cloudy {
+            background-image: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 50%, #90CAF9 100%);
+            animation: cloudy-sky 20s infinite linear;
+        }
+        
+        .weather-rainy {
+            background-image: linear-gradient(135deg, #455A64 0%, #607D8B 50%, #78909C 100%);
+            animation: rainy-sky 15s infinite linear;
+        }
+        
+        .weather-snowy {
+            background-image: linear-gradient(135deg, #ECEFF1 0%, #CFD8DC 50%, #B0BEC5 100%);
+            animation: snowy-sky 25s infinite linear;
+        }
+        
+        /* 天气动画效果 */
+        @keyframes sunny-sky {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+        
+        @keyframes cloudy-sky {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+        
+        @keyframes rainy-sky {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+        
+        @keyframes snowy-sky {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+        
+        /* 音乐卡片样式 */
+        .music-card {
+            background-color: transparent;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .music-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .music-info {
+            margin-bottom: 12px;
+        }
+        
+        .music-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+        
+        .music-artist {
+            font-size: 14px;
+            color: var(--secondary-color);
+        }
+        
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .music-play-btn, .music-stop-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .music-play-btn:hover, .music-stop-btn:hover {
+            background-color: #0284c7;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .music-stop-btn {
+            background-color: #ef4444;
+        }
+        
+        .music-stop-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        .music-progress-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .music-progress-bar {
+            flex: 1;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .music-progress {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0%;
+            transition: width 0.1s linear;
+            border-radius: 3px;
+        }
+        
+        .music-time {
+            font-size: 12px;
+            color: var(--secondary-color);
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        /* 音乐通知样式 */
+        .message.music-notification {
+            background-color: transparent;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 12px;
+        }
+        
+        .logout-btn {
+            background-color: #ef4444;
+        }
+        
+        .logout-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .user-list {
+                width: auto;
+                margin: 0 10px 10px;
+                height: 150px;
+            }
+        }
+        
+
+        
+        /* 音乐通知样式 */
+        .music-notification {
+            background: transparent;
+            border-left: 4px solid #3498db;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .music-notification .message-header {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* 新闻样式 */
+        .news-container {
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .news-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .news-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .news-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 图片样式 */
+        .image-container {
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .image-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .image-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .image-display {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>亚托莉 - 聊天室</h1>
+        <button id="logout" class="logout-btn">退出</button>
+    </div>
+    
+    <div class="container">
+        <div class="chat-area">
+            <div id="messages" class="messages"></div>
+            <div class="input-area">
+                <div class="function-buttons">
+                    <button id="emoji-btn" class="emoji-btn">😀</button>
+                    <button id="music-btn" class="function-btn">@音乐</button>
+                    <button id="news-btn" class="function-btn">@新闻60s</button>
+                    <button id="weather-btn" class="function-btn">@天气</button>
+                    <button id="movie-btn" class="function-btn">@电影</button>
+                </div>
+                <div class="input-container">
+                    <input id="message-input" type="text" placeholder="输入消息，支持@电影 URL格式的指令...">
+                    <button id="send-btn">发送</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="user-list">
+            <div class="user-list-header">在线用户</div>
+            <div id="users" class="users"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>/* 页面版本: 2025-12-04-16:00 */
+    
+        // 获取URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        
+        if (!username) {
+            window.location.href = '/';
+        }
+        
+        // 连接Socket.IO
+        const socket = io({
+            transports: ['websocket', 'polling'],
+            timeout: 5000,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
+        });
+        
+        // 添加调试事件监听器
+        socket.on('connect', () => {
+            console.log('Socket.IO连接成功:', socket.id);
+        });
+        
+        socket.on('disconnect', (reason) => {
+            console.log('Socket.IO连接断开:', reason);
+        });
+        
+        socket.on('connect_error', (error) => {
+            console.error('Socket.IO连接错误:', error);
+        });
+        
+        socket.on('reconnect_attempt', (attemptNumber) => {
+            console.log('Socket.IO重新连接尝试:', attemptNumber);
+        });
+        
+        socket.on('reconnect', (attemptNumber) => {
+            console.log('Socket.IO重新连接成功:', attemptNumber);
+        });
+        
+        socket.on('reconnect_error', (error) => {
+            console.error('Socket.IO重新连接错误:', error);
+        });
+        
+        socket.on('reconnect_failed', () => {
+            console.error('Socket.IO重新连接失败');
+        });
+        
+        // 加入聊天室
+        socket.emit('join', { username });
+        
+        // 监听消息
+        socket.on('message', handleMessage);
+        
+        // 监听@指令结果
+        socket.on('at_command_result', handleAtCommandResult);
+        
+        // 监听音乐播放同步事件
+        socket.on('music_playing', handleMusicPlaying);
+        
+        // 监听用户加入
+        socket.on('user_joined', function(data) {
+            const message = document.createElement('div');
+            message.className = 'message';
+            message.innerHTML = `<div class="message-content" style="text-align: center; color: #666;">${data.username} 加入了聊天室</div>`;
+            document.getElementById('messages').appendChild(message);
+            scrollToBottom();
+        });
+        
+        // 监听用户离开
+        socket.on('user_left', function(data) {
+            const message = document.createElement('div');
+            message.className = 'message';
+            message.innerHTML = `<div class="message-content" style="text-align: center; color: #666;">${data.username} 离开了聊天室</div>`;
+            document.getElementById('messages').appendChild(message);
+            scrollToBottom();
+        });
+        
+        // 监听用户列表更新
+        socket.on('update_users', function(data) {
+            const usersDiv = document.getElementById('users');
+            usersDiv.innerHTML = '';
+            // 服务器返回的是包含users属性的对象
+            if (data && data.users) {
+                data.users.forEach(user => {
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'user';
+                    
+                    // 显示用户头像
+                    if (user === '萝卜子') {
+                        userDiv.innerHTML = '<img src="/static/images/luobzi.svg" style="width:24px; height:24px; border-radius:50%; margin-right:8px; vertical-align:middle;">' + user;
+                    } else if (data.user_avatars && data.user_avatars[user]) {
+                        userDiv.innerHTML = `<img src="${data.user_avatars[user]}" style="width:24px; height:24px; border-radius:50%; margin-right:8px; vertical-align:middle;">${user}`;
+                    } else {
+                        userDiv.textContent = user;
+                    }
+                    
+                    usersDiv.appendChild(userDiv);
+                });
+            }
+            
+            // 设置聊天室背景壁纸
+            if (data.wallpaper) {
+                document.body.style.backgroundImage = `url('${data.wallpaper}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.style.backgroundAttachment = 'fixed';
+            }
+        });
+        
+        // 发送消息
+        document.getElementById('send-btn').addEventListener('click', sendMessage);
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // 退出按钮
+        document.getElementById('logout').addEventListener('click', function() {
+            // 断开socket连接
+            socket.disconnect();
+            // 跳转到登录页面
+            window.location.href = '/login';
+        });
+        
+        // 监听错误消息
+        socket.on('error', function(data) {
+            alert('错误: ' + data.message);
+            // 如果是用户验证错误，跳转到登录页面
+            window.location.href = '/login';
+        });
+        
+        // 表情按钮
+        document.getElementById('emoji-btn').addEventListener('click', function() {
+            const emojis = ['😀', '😂', '😍', '🤔', '😢', '👍', '❤️', '🎉'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            document.getElementById('message-input').value += randomEmoji;
+        });
+        
+        // @音乐按钮
+        document.getElementById('music-btn').addEventListener('click', function() {
+            // 直接发送@音乐命令，不需要输入关键词
+            const message = `@音乐`;
+            socket.emit('message', { username, message });
+        });
+        
+        // @新闻60s按钮
+        document.getElementById('news-btn').addEventListener('click', function() {
+            const message = '@新闻';
+            socket.emit('message', { username, message });
+        });
+        
+        // 创建自定义输入模态框的通用函数
+        function showInputModal(title, placeholder, callback) {
+            // 检查是否已存在输入模态框
+            let modal = document.getElementById('input-modal');
+            if (modal) {
+                modal.remove();
+            }
+            
+            // 创建自定义输入模态框
+            modal = document.createElement('div');
+            modal.id = 'input-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 400px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            `;
+            
+            const modalTitle = document.createElement('h3');
+            modalTitle.textContent = title;
+            modalTitle.style.marginTop = '0';
+            
+            const inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.id = 'modal-input';
+            inputField.placeholder = placeholder;
+            inputField.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                box-sizing: border-box;
+            `;
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = `
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 15px;
+            `;
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = '取消';
+            cancelBtn.style.cssText = `
+                padding: 8px 16px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #f5f5f5;
+                cursor: pointer;
+            `;
+            cancelBtn.addEventListener('click', function() {
+                modal.remove();
+            });
+            
+            const confirmBtn = document.createElement('button');
+            confirmBtn.textContent = '确定';
+            confirmBtn.style.cssText = `
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                background-color: #6200ea;
+                color: white;
+                cursor: pointer;
+            `;
+            confirmBtn.addEventListener('click', function() {
+                const value = document.getElementById('modal-input').value;
+                callback(value && value.trim() ? value.trim() : null);
+                modal.remove();
+            });
+            
+            buttonContainer.appendChild(cancelBtn);
+            buttonContainer.appendChild(confirmBtn);
+            
+            modalContent.appendChild(modalTitle);
+            modalContent.appendChild(inputField);
+            modalContent.appendChild(buttonContainer);
+            modal.appendChild(modalContent);
+            
+            // 添加键盘事件支持
+            inputField.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    confirmBtn.click();
+                }
+            });
+            
+            // 添加点击外部关闭支持
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            document.body.appendChild(modal);
+            // 自动聚焦输入框
+            inputField.focus();
+        }
+        
+        // @天气按钮
+        document.getElementById('weather-btn').addEventListener('click', function() {
+            showInputModal('请输入城市名称:', '例如: 北京 上海', function(city) {
+                if (city) {
+                    const message = `@天气 ${city}`;
+                    socket.emit('message', { username, message });
+                }
+            });
+        });
+        
+        // @电影按钮
+        document.getElementById('movie-btn').addEventListener('click', function() {
+            showInputModal('请输入电影URL:', '例如: https://www.example.com/movie', function(url) {
+                if (url) {
+                    const message = `@电影 ${url}`;
+                    socket.emit('message', { username, message });
+                }
+            });
+        });
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (message) {
+                socket.emit('message', { username, message });
+                messageInput.value = '';
+            }
+        }
+        
+        function handleMessage(data) {
+            // 检查消息是否已存在，避免重复添加
+            const messagesContainer = document.getElementById('messages');
+            const existingMessages = Array.from(messagesContainer.querySelectorAll('.message'));
+            const isDuplicate = existingMessages.some(msg => 
+                msg.querySelector('.message-header')?.textContent === data.username &&
+                msg.querySelector('.message-content')?.textContent === data.message &&
+                msg.querySelector('.message-content')?.querySelector('iframe') === null
+            );
+            
+            if (isDuplicate) {
+                return; // 避免添加重复消息
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = data.username === username ? 'message own' : 'message';
+            
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+            
+            // 显示用户头像
+            if (data.username === '萝卜子') {
+                // 萝卜子使用固定头像
+                messageHeader.innerHTML = '<img src="/static/images/luobzi.svg" style="width:24px; height:24px; border-radius:50%; margin-right:8px; vertical-align:middle;">' + data.username;
+            } else if (data.avatar) {
+                // 其他用户使用API获取的头像
+                messageHeader.innerHTML = `<img src="${data.avatar}" style="width:24px; height:24px; border-radius:50%; margin-right:8px; vertical-align:middle;">${data.username}`;
+            } else {
+                // 没有头像时只显示用户名
+                messageHeader.textContent = data.username;
+            }
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            // 检查是否包含@电影指令
+            if (data.message && data.message.includes('@电影')) {
+                parseMessageWithMovie(data.message, messageContent);
+            } else {
+                // 对于普通消息，直接显示文本
+                messageContent.textContent = data.message;
+            }
+            
+            messageDiv.appendChild(messageHeader);
+            messageDiv.appendChild(messageContent);
+            
+            // 确保消息按顺序添加到容器末尾
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // 解析消息中的@电影指令
+        function parseMessageWithMovie(message, container) {
+            // 匹配@电影 URL格式，支持中文和英文冒号，以及可选的空格
+            const movieRegex = /@电影[：:]*\s*([^\s]+)/g;
+            let match;
+            let lastIndex = 0;
+            
+            // 对消息进行HTML转义，防止XSS攻击
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            while ((match = movieRegex.exec(message)) !== null) {
+                // 添加匹配前的文本（转义HTML）
+                if (match.index > lastIndex) {
+                    const textNode = document.createTextNode(escapeHtml(message.substring(lastIndex, match.index)));
+                    container.appendChild(textNode);
+                }
+                
+                // 获取电影URL
+                const movieUrl = match[1];
+                
+                // 简单的URL格式验证
+                let parsedUrl = movieUrl;
+                // 如果URL没有协议，添加http://
+                if (!parsedUrl.startsWith('http://') && !parsedUrl.startsWith('https://')) {
+                    parsedUrl = 'http://' + parsedUrl;
+                }
+                
+                // 创建一个包含iframe的div
+                const iframeContainer = document.createElement('div');
+                iframeContainer.style.marginTop = '10px';
+                iframeContainer.style.marginBottom = '10px';
+                iframeContainer.style.position = 'relative';
+                
+                // 创建加载中的提示
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.textContent = '正在加载视频...';
+                loadingIndicator.style.textAlign = 'center';
+                loadingIndicator.style.padding = '10px';
+                loadingIndicator.style.color = '#666';
+                loadingIndicator.style.backgroundColor = '#f5f5f5';
+                loadingIndicator.style.borderRadius = '5px';
+                loadingIndicator.id = 'loading-' + Date.now();
+                
+                // 创建iframe元素
+                const iframe = document.createElement('iframe');
+                iframe.src = parsedUrl;
+                iframe.width = '400';
+                iframe.height = '400';
+                iframe.allowFullscreen = true;
+                iframe.style.borderRadius = '5px';
+                iframe.style.border = '1px solid #ddd';
+                iframe.style.display = 'none';
+                
+                // iframe加载完成后隐藏加载提示
+                iframe.onload = function() {
+                    this.style.display = 'block';
+                    if (loadingIndicator && loadingIndicator.parentNode) {
+                        loadingIndicator.parentNode.removeChild(loadingIndicator);
+                    }
+                };
+                
+                // iframe加载失败的处理
+                iframe.onerror = function() {
+                    if (loadingIndicator) {
+                        loadingIndicator.textContent = '视频加载失败，请检查URL';
+                        loadingIndicator.style.color = '#f44336';
+                    }
+                };
+                
+                // 添加元素到容器
+                iframeContainer.appendChild(loadingIndicator);
+                iframeContainer.appendChild(iframe);
+                container.appendChild(iframeContainer);
+                
+                lastIndex = match.index + match[0].length;
+            }
+            
+            // 添加剩余的文本（转义HTML）
+            if (lastIndex < message.length) {
+                const textNode = document.createTextNode(escapeHtml(message.substring(lastIndex)));
+                container.appendChild(textNode);
+            }
+        }
+        
+        // 处理@指令结果
+        function handleAtCommandResult(data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+            messageHeader.textContent = `萝卜子 - @${data.command}`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            // 根据不同的命令类型显示不同的内容
+            switch(data.command) {
+                case '天气':
+                    // 显示天气信息
+                    displayWeatherInfo(data.result, messageContent);
+                    break;
+                case '新闻':
+                    // 显示新闻列表
+                    displayNewsInfo(data.result, messageContent);
+                    break;
+                case '音乐':
+                    // 显示音乐播放器
+                    displayMusicPlayer(data.result, messageContent);
+                    break;
+                case 'img':
+                    // 显示图片
+                    displayImageInfo(data.result, messageContent);
+                    break;
+                default:
+                    // 显示普通文本结果
+                    messageContent.textContent = data.result;
+            }
+            
+            messageDiv.appendChild(messageHeader);
+            messageDiv.appendChild(messageContent);
+            
+            document.getElementById('messages').appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // 显示天气信息
+        function displayWeatherInfo(weatherData, container) {
+            if (typeof weatherData === 'string') {
+                container.textContent = weatherData;
+                return;
+            }
+            
+            // 创建天气卡片
+            const weatherCard = document.createElement('div');
+            weatherCard.className = 'weather-card';
+            weatherCard.innerHTML = `
+                <div class="weather-city">${weatherData.city || '未知城市'}</div>
+                <div class="weather-main">${weatherData.main || '未知'}</div>
+                <div class="weather-temp">${weatherData.temp || '--'}°C</div>
+                <div class="weather-desc">${weatherData.description || ''}</div>
+                <div class="weather-detail">
+                    <span>湿度: ${weatherData.humidity || '--'}%</span>
+                    <span>风速: ${weatherData.wind_speed || '--'} m/s</span>
+                </div>
+            `;
+            
+            container.appendChild(weatherCard);
+            
+            // 更新背景样式（沉浸式体验）
+            updateBackgroundByWeather(weatherData.main);
+        }
+        
+        // 显示新闻列表
+        function displayNewsInfo(newsData, container) {
+            if (typeof newsData === 'string') {
+                container.textContent = newsData;
+                return;
+            }
+            
+            // 创建新闻容器
+            const newsContainer = document.createElement('div');
+            newsContainer.className = 'news-container';
+            
+            if (newsData.list && Array.isArray(newsData.list)) {
+                newsData.list.forEach(news => {
+                    const newsItem = document.createElement('div');
+                    newsItem.className = 'news-item';
+                    newsItem.innerHTML = `
+                        <div class="news-title">${news.title || '无标题'}</div>
+                        ${news.image ? `<img src="${news.image}" class="news-image">` : ''}
+                    `;
+                    newsContainer.appendChild(newsItem);
+                });
+            } else {
+                newsContainer.textContent = '暂无新闻数据';
+            }
+            
+            container.appendChild(newsContainer);
+        }
+        
+        // 显示图片信息
+        function displayImageInfo(imageData, container) {
+            if (typeof imageData === 'string') {
+                container.textContent = imageData;
+                return;
+            }
+            
+            // 创建图片容器
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-container';
+            
+            if (imageData.list && Array.isArray(imageData.list)) {
+                imageData.list.forEach(image => {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'image-item';
+                    imageItem.innerHTML = `
+                        <div class="image-title">${image.title || '图片'}</div>
+                        ${image.image ? `<img src="${image.image}" class="image-display">` : ''}
+                    `;
+                    imageContainer.appendChild(imageItem);
+                });
+            } else {
+                imageContainer.textContent = '暂无图片数据';
+            }
+            
+            container.appendChild(imageContainer);
+        }
+        
+        // 全局变量：跟踪当前活跃的音频元素和音乐卡片
+        let activeAudioElement = null;
+        let activeMusicCard = null;
+        let isAudioStopping = false;
+        let isAudioOperationInProgress = false;
+        
+        // 停止并清理当前活跃的音频元素
+        function stopActiveAudio() {
+            if (activeAudioElement) {
+                try {
+                    isAudioStopping = true;
+                    
+                    // 暂停音频并重置播放时间
+                    activeAudioElement.pause();
+                    activeAudioElement.currentTime = 0;
+                    
+                    // 重置播放按钮状态
+                    if (activeMusicCard) {
+                        const playIcon = activeMusicCard.querySelector('.play-icon');
+                        const pauseIcon = activeMusicCard.querySelector('.pause-icon');
+                        if (playIcon) playIcon.style.display = 'inline';
+                        if (pauseIcon) pauseIcon.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('停止活跃音频失败:', error);
+                } finally {
+                    // 从DOM中移除音频元素
+                    if (activeAudioElement && activeAudioElement.parentNode) {
+                        try {
+                            console.log('从DOM中移除活跃音频元素:', activeAudioElement.id);
+                            document.body.removeChild(activeAudioElement);
+                        } catch (error) {
+                            console.error('移除活跃音频元素失败:', error);
+                        }
+                    }
+                    
+                    // 重置活跃引用
+                    activeAudioElement = null;
+                    activeMusicCard = null;
+                    isAudioStopping = false;
+                    
+                    // 延迟重置操作状态，确保有足够时间完成清理
+                    setTimeout(() => {
+                        isAudioOperationInProgress = false;
+                        console.log('音频操作状态已重置');
+                    }, 200);
+                }
+            }
+        }
+        
+        // 显示音乐播放器
+        function displayMusicPlayer(musicData, container) {
+            if (typeof musicData === 'string') {
+                container.textContent = musicData;
+                return;
+            }
+            
+            // 1. 首先清理所有旧的音乐卡片和音频元素
+            console.log('开始清理旧的音乐元素...');
+            
+            // 清理当前容器中的内容
+            container.innerHTML = '';
+            
+            // 停止所有正在播放的音频
+            const allAudios = document.querySelectorAll('audio');
+            allAudios.forEach(audio => {
+                console.log('停止并移除所有音频元素:', audio.id);
+                try {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    if (audio.parentNode) {
+                        document.body.removeChild(audio);
+                    }
+                } catch (error) {
+                    console.error('停止并移除音频元素失败:', error);
+                }
+            });
+            
+            // 清理所有音乐卡片
+            const allMusicCards = document.querySelectorAll('.music-card');
+            allMusicCards.forEach(card => {
+                console.log('清理旧音乐卡片:', card.dataset.musicId);
+                if (card.parentNode) {
+                    card.parentNode.removeChild(card);
+                }
+            });
+            
+            // 重置所有状态
+            activeAudioElement = null;
+            activeMusicCard = null;
+            isAudioStopping = false;
+            isAudioOperationInProgress = false;
+            
+            // 清理当前容器中的内容（再次确保）
+            container.innerHTML = '';
+            
+            // 重新查询所有音乐卡片（应该为空）
+            const remainingCards = document.querySelectorAll('.music-card');
+            console.log('清理后剩余音乐卡片数量:', remainingCards.length);
+            
+            // 创建音乐卡片
+            
+            // 2. 重置活跃音频状态
+            console.log('重置活跃音频状态...');
+            activeAudioElement = null;
+            activeMusicCard = null;
+            isAudioStopping = false;
+            isAudioOperationInProgress = false;
+            
+            console.log('清理完成，准备创建新的音乐卡片...');
+            
+            // 创建音乐卡片
+            const musicCard = document.createElement('div');
+            musicCard.className = 'music-card';
+            musicCard.dataset.musicId = musicData.id || Date.now(); // 为每个音乐卡片添加唯一ID
+            
+            // 创建音乐信息部分
+            const musicInfo = document.createElement('div');
+            musicInfo.className = 'music-info';
+            
+            const musicTitle = document.createElement('div');
+            musicTitle.className = 'music-title';
+            musicTitle.textContent = musicData.title || '未知歌曲';
+            
+            const musicArtist = document.createElement('div');
+            musicArtist.className = 'music-artist';
+            musicArtist.textContent = musicData.artist || '未知歌手';
+            
+            musicInfo.appendChild(musicTitle);
+            musicInfo.appendChild(musicArtist);
+            
+            // 创建音乐控制部分
+            const musicControls = document.createElement('div');
+            musicControls.className = 'music-controls';
+            
+            // 播放按钮
+            const playBtn = document.createElement('button');
+            playBtn.className = 'music-play-btn';
+            
+            const playIcon = document.createElement('span');
+            playIcon.className = 'play-icon';
+            playIcon.textContent = '▶';
+            
+            const pauseIcon = document.createElement('span');
+            pauseIcon.className = 'pause-icon';
+            pauseIcon.textContent = '⏸';
+            pauseIcon.style.display = 'none';
+            
+            playBtn.appendChild(playIcon);
+            playBtn.appendChild(pauseIcon);
+            
+            // 停止按钮
+            const stopBtn = document.createElement('button');
+            stopBtn.className = 'music-stop-btn';
+            stopBtn.textContent = '⏹';
+            
+            // 进度条
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'music-progress-container';
+            
+            const progressBar = document.createElement('div');
+            progressBar.className = 'music-progress-bar';
+            
+            const progress = document.createElement('div');
+            progress.className = 'music-progress';
+            
+            progressBar.appendChild(progress);
+            
+            const timeDisplay = document.createElement('span');
+            timeDisplay.className = 'music-time';
+            timeDisplay.textContent = '0:00';
+            
+            progressContainer.appendChild(progressBar);
+            progressContainer.appendChild(timeDisplay);
+            
+            // 组装控制部分
+            musicControls.appendChild(playBtn);
+            musicControls.appendChild(stopBtn);
+            musicControls.appendChild(progressContainer);
+            
+            // 组装音乐卡片
+            musicCard.appendChild(musicInfo);
+            musicCard.appendChild(musicControls);
+            
+            // 创建音频元素
+            let audioElement;
+            if (musicData.url) {
+                console.log('创建音频元素，URL:', musicData.url);
+                audioElement = document.createElement('audio');
+                audioElement.src = musicData.url;
+                audioElement.type = 'audio/mpeg';
+                audioElement.preload = 'metadata';
+                
+                // 添加音频加载事件监听
+                audioElement.addEventListener('loadedmetadata', function() {
+                    console.log('音频元数据加载成功:', audioElement.duration, '秒');
+                });
+                
+                audioElement.addEventListener('loadeddata', function() {
+                    console.log('音频数据加载成功');
+                });
+                
+                audioElement.addEventListener('canplay', function() {
+                    console.log('音频可以播放了');
+                });
+                
+                // 添加音频错误处理
+                audioElement.addEventListener('error', function(e) {
+                    console.error('音频加载失败:', e);
+                    console.error('错误类型:', e.target.error.code);
+                    console.error('错误消息:', e.target.error.message);
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'music-error';
+                    errorMsg.textContent = '音频加载失败: ' + (e.target.error ? e.target.error.message : '未知错误');
+                    musicCard.appendChild(errorMsg);
+                });
+                
+                // 生成唯一的音频ID
+                const uniqueId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                const audioId = 'audio-' + uniqueId;
+                audioElement.id = audioId;
+                musicCard.dataset.audioId = audioId;
+                musicCard.dataset.musicTitle = musicData.title;
+                
+                console.log('添加音频元素到DOM，ID:', audioId);
+                document.body.appendChild(audioElement);
+                
+                // 验证音频元素是否成功添加
+                setTimeout(() => {
+                    const addedAudio = document.getElementById(audioId);
+                    if (addedAudio) {
+                        console.log('音频元素验证成功:', addedAudio);
+                    } else {
+                        console.error('音频元素验证失败，未能在DOM中找到');
+                    }
+                }, 100);
+                
+                // 确保每次只有一个活跃的音频元素
+                if (activeAudioElement && activeAudioElement !== audioElement) {
+                    console.log('新的音频卡片创建，停止当前活跃音频');
+                    stopActiveAudio();
+                }
+            } else {
+                // 如果没有音频URL，显示错误信息
+                console.log('没有找到有效的音频源');
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'music-error';
+                errorMsg.textContent = '没有找到有效的音频源';
+                musicCard.appendChild(errorMsg);
+            }
+            
+            container.appendChild(musicCard);
+            
+            // 添加事件监听器
+            if (audioElement) {
+                // 已经通过DOM创建了这些元素，直接使用它们
+                
+                // 播放/暂停按钮事件
+                playBtn.addEventListener('click', function() {
+                    console.log('播放按钮被点击');
+                    console.log('音频元素状态:', audioElement);
+                    
+                    if (audioElement) {
+                        try {
+                            // 检查是否有其他音频操作正在进行
+                            if (isAudioOperationInProgress) {
+                                console.log('有其他音频操作正在进行，暂时忽略当前请求');
+                                return;
+                            }
+                            
+                            if (audioElement.paused) {
+                                // 如果当前有其他音频在播放，先停止它
+                                if (activeAudioElement && activeAudioElement !== audioElement) {
+                                    console.log('停止当前活跃音频，播放新音频');
+                                    isAudioOperationInProgress = true;
+                                    stopActiveAudio();
+                                } else {
+                                    isAudioOperationInProgress = true;
+                                }
+                                
+                                console.log('尝试播放音频...');
+                                
+                                // 使用requestAnimationFrame确保在浏览器下一个帧执行播放
+                                requestAnimationFrame(() => {
+                                    // 确保音频元素存在且可以播放
+                                    if (!audioElement || audioElement.readyState === 0) {
+                                        console.error('音频元素不存在或未准备好播放');
+                                        isAudioOperationInProgress = false;
+                                        return;
+                                    }
+                                    
+                                    // 再次检查音频元素是否真的已经暂停
+                                    if (audioElement.paused) {
+                                        console.log('调用audioElement.play()');
+                                        audioElement.play()
+                                            .then(function() {
+                                                console.log('音频播放成功');
+                                                playIcon.style.display = 'none';
+                                                pauseIcon.style.display = 'inline';
+                                                
+                                                // 更新活跃音频元素和音乐卡片
+                                                activeAudioElement = audioElement;
+                                                activeMusicCard = musicCard;
+                                                
+                                                // 根据音乐更新背景颜色
+                                                if (musicData.color) {
+                                                    updateBackgroundColor(musicData.color);
+                                                }
+                                                
+                                                // 发送播放事件给服务器
+                                                socket.emit('music_play', {
+                                                    music: musicData,
+                                                    status: 'play'
+                                                });
+                                            })
+                                            .catch(function(error) {
+                                                console.error('音频播放失败:', error);
+                                                // 尝试使用更可靠的方式播放
+                                                console.log('尝试使用更可靠的方式播放音频');
+                                                setTimeout(() => {
+                                                    audioElement.load();
+                                                    setTimeout(() => {
+                                                        audioElement.play().catch(e => {
+                                                            console.error('第二次尝试播放也失败:', e);
+                                                            const errorMsg = document.createElement('div');
+                                                            errorMsg.className = 'music-error';
+                                                            errorMsg.textContent = '音频播放失败: ' + e.message;
+                                                            musicCard.appendChild(errorMsg);
+                                                        });
+                                                    }, 100);
+                                                }, 100);
+                                            })
+                                            .finally(function() {
+                                                // 标记音频操作完成
+                                                isAudioOperationInProgress = false;
+                                            });
+                                    } else {
+                                        console.log('音频已经在播放，不需要重复调用play()');
+                                        isAudioOperationInProgress = false;
+                                    }
+                                });
+                            } else {
+                                console.log('尝试暂停音频...');
+                                audioElement.pause();
+                                console.log('音频暂停成功');
+                                playIcon.style.display = 'inline';
+                                pauseIcon.style.display = 'none';
+                                
+                                // 发送暂停事件给服务器
+                                socket.emit('music_play', {
+                                    music: musicData,
+                                    status: 'pause'
+                                });
+                            }
+                        } catch (error) {
+                            console.error('播放按钮点击事件处理失败:', error);
+                            isAudioOperationInProgress = false;
+                        }
+                    } else {
+                        console.error('音频元素不存在');
+                    }
+                });
+                
+                // 停止按钮事件
+                stopBtn.addEventListener('click', function() {
+                    if (audioElement) {
+                        // 检查是否有其他音频操作正在进行
+                        if (isAudioOperationInProgress) {
+                            console.log('有其他音频操作正在进行，暂时忽略当前请求');
+                            return;
+                        }
+                        
+                        // 如果当前是活跃音频，使用stopActiveAudio函数
+                        if (activeAudioElement === audioElement) {
+                            stopActiveAudio();
+                        } else {
+                            // 否则直接停止该音频
+                            audioElement.pause();
+                            audioElement.currentTime = 0;
+                            playIcon.style.display = 'inline';
+                            pauseIcon.style.display = 'none';
+                        }
+                        
+                        // 重置UI
+                        progress.style.width = '0%';
+                        timeDisplay.textContent = '0:00';
+                        
+                        // 发送停止事件给服务器
+                        socket.emit('music_play', {
+                            music: musicData,
+                            status: 'stop'
+                        });
+                    }
+                });
+                
+                // 更新进度条
+                audioElement.addEventListener('timeupdate', function() {
+                    const duration = audioElement.duration;
+                    const currentTime = audioElement.currentTime;
+                    
+                    if (duration > 0) {
+                        const progressPercent = (currentTime / duration) * 100;
+                        progress.style.width = progressPercent + '%';
+                        
+                        // 更新时间显示
+                        const minutes = Math.floor(currentTime / 60);
+                        const seconds = Math.floor(currentTime % 60);
+                        timeDisplay.textContent = minutes + ':' + (seconds < 10 ? '0' + seconds : seconds);
+                    }
+                });
+                
+                // 点击进度条跳转到指定位置
+                progressContainer.addEventListener('click', function(e) {
+                    if (!audioElement.duration) return;
+                    
+                    // 检查是否有其他音频操作正在进行
+                    if (isAudioOperationInProgress) {
+                        console.log('有其他音频操作正在进行，暂时忽略进度条跳转请求');
+                        return;
+                    }
+                    
+                    // 设置音频操作进行中标志
+                    isAudioOperationInProgress = true;
+                    
+                    // 记录当前播放状态
+                    const wasPlaying = !audioElement.paused;
+                    
+                    // 获取点击位置并设置当前时间
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    audioElement.currentTime = pos * audioElement.duration;
+                    
+                    // 如果之前是播放状态，等待seeked事件后再恢复播放
+                    if (wasPlaying) {
+                        // 移除可能存在的旧事件监听器
+                        audioElement.removeEventListener('seeked', handleSeeked);
+                        
+                        // 添加新的事件监听器
+                        function handleSeeked() {
+                            // 确保音频元素存在且没有被移除
+                            if (audioElement && audioElement.parentNode) {
+                                audioElement.play()
+                                    .then(function() {
+                                        console.log('进度条跳转后播放成功');
+                                    })
+                                    .catch(e => {
+                                        console.error('拖动进度后播放失败:', e);
+                                        // 播放失败时恢复播放按钮状态
+                                        if (audioElement.paused) {
+                                            playIcon.style.display = 'inline';
+                                            pauseIcon.style.display = 'none';
+                                        }
+                                    })
+                                    .finally(function() {
+                                        // 标记音频操作完成
+                                        isAudioOperationInProgress = false;
+                                    });
+                            } else {
+                                // 音频元素不存在，标记操作完成
+                                isAudioOperationInProgress = false;
+                            }
+                            // 移除事件监听器
+                            audioElement.removeEventListener('seeked', handleSeeked);
+                        }
+                        
+                        audioElement.addEventListener('seeked', handleSeeked);
+                    } else {
+                        // 如果之前是暂停状态，直接标记操作完成
+                        isAudioOperationInProgress = false;
+                    }
+                });
+                
+                // 音乐播放结束
+                audioElement.addEventListener('ended', function() {
+                    playIcon.style.display = 'inline';
+                    pauseIcon.style.display = 'none';
+                    progress.style.width = '100%';
+                });
+            }
+        }
+        
+        // 根据天气更新背景
+        function updateBackgroundByWeather(weatherCondition) {
+            const body = document.body;
+            // 移除所有天气相关的背景类
+            body.classList.remove('weather-sunny', 'weather-cloudy', 'weather-rainy', 'weather-snowy');
+            
+            // 根据天气条件添加对应的背景类
+            if (!weatherCondition) return;
+            
+            const condition = weatherCondition.toLowerCase();
+            if (condition.includes('晴')) {
+                body.classList.add('weather-sunny');
+            } else if (condition.includes('云')) {
+                body.classList.add('weather-cloudy');
+            } else if (condition.includes('雨')) {
+                body.classList.add('weather-rainy');
+            } else if (condition.includes('雪')) {
+                body.classList.add('weather-snowy');
+            }
+        }
+        
+        // 更新背景颜色
+        function updateBackgroundColor(color) {
+            const body = document.body;
+            if (color) {
+                // 设置半透明背景色，保留壁纸的显示
+                body.style.backgroundColor = color;
+                body.style.backgroundBlendMode = 'overlay';
+            }
+        }
+
+        // 处理音乐播放同步事件
+        function handleMusicPlaying(data) {
+            // 显示音乐开始播放的通知
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message music-notification';
+            
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+            messageHeader.textContent = `萝卜子`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            if (data.played_by && data.played_by !== 'system') {
+                messageContent.textContent = `${data.played_by} 正在播放音乐: ${data.music.title} - ${data.music.artist}`;
+            } else {
+                messageContent.textContent = `正在播放音乐: ${data.music.title} - ${data.music.artist}`;
+            }
+            
+            messageDiv.appendChild(messageHeader);
+            messageDiv.appendChild(messageContent);
+            
+            document.getElementById('messages').appendChild(messageDiv);
+            scrollToBottom();
+            
+            // 创建音乐卡片，这样所有用户都能看到和播放音乐
+            const musicCardDiv = document.createElement('div');
+            musicCardDiv.className = 'message';
+            musicCardDiv.classList.add('music-message'); // 添加特殊类便于识别
+            musicCardDiv.dataset.musicTitle = data.music.title;
+            
+            const musicHeader = document.createElement('div');
+            musicHeader.className = 'message-header';
+            musicHeader.textContent = `音乐`;
+            
+            const musicContent = document.createElement('div');
+            musicContent.className = 'message-content';
+            
+            displayMusicPlayer(data.music, musicContent);
+            
+            musicCardDiv.appendChild(musicHeader);
+            musicCardDiv.appendChild(musicContent);
+            
+            // 清理旧的音乐消息卡片，只保留最新的2个
+            const existingMusicMessages = document.querySelectorAll('.music-message');
+            if (existingMusicMessages.length > 2) {
+                for (let i = 0; i < existingMusicMessages.length - 2; i++) {
+                    console.log('清理旧的音乐消息卡片');
+                    existingMusicMessages[i].remove();
+                }
+            }
+            
+            document.getElementById('messages').appendChild(musicCardDiv);
+            scrollToBottom();
+            
+            // 根据音乐更新背景颜色
+            if (data.music.color) {
+                updateBackgroundColor(data.music.color);
+            }
+        }
+        
+        // 处理音乐同步事件
+        socket.on('music_sync', function(data) {
+            if (!data || !data.music || !data.status) return;
+            
+            // 检查是否是当前用户触发的事件，如果是则忽略
+            // 这样可以避免自己触发的事件又被自己处理，导致状态混乱
+            if (data.played_by === username) {
+                console.log('忽略自己触发的音乐同步事件');
+                return;
+            }
+            
+            console.log('收到音乐同步事件:', data);
+            
+            // 如果是播放新音乐，先清理旧的音乐卡片和音频元素
+            if (data.status === 'play') {
+                console.log('同步播放新音乐，先清理旧的音乐元素');
+                
+                // 清理所有旧的音乐卡片和音频元素
+                const allMusicCards = document.querySelectorAll('.music-card');
+                allMusicCards.forEach(card => {
+                    const cardAudioId = card.dataset.audioId;
+                    if (cardAudioId) {
+                        const oldAudio = document.getElementById(cardAudioId);
+                        if (oldAudio) {
+                            console.log('清理旧音频元素:', cardAudioId);
+                            try {
+                                oldAudio.pause();
+                                oldAudio.currentTime = 0;
+                                document.body.removeChild(oldAudio);
+                            } catch (error) {
+                                console.error('清理旧音频元素失败:', error);
+                            }
+                        }
+                    }
+                    // 从父容器中移除旧卡片
+                    if (card.parentNode) {
+                        card.parentNode.removeChild(card);
+                    }
+                });
+                
+                // 重置活跃音频状态
+                activeAudioElement = null;
+                activeMusicCard = null;
+                isAudioStopping = false;
+                isAudioOperationInProgress = false;
+            }
+            
+            // 查找对应的音乐卡片
+            const musicCards = document.querySelectorAll('.music-card');
+            let targetCard = null;
+            
+            // 通过音乐ID或标题匹配卡片
+            musicCards.forEach(card => {
+                const cardMusicId = card.dataset.musicId;
+                const cardTitle = card.querySelector('.music-title')?.textContent;
+                
+                if (cardMusicId === data.music.id || 
+                    cardTitle === data.music.title) {
+                    targetCard = card;
+                }
+            });
+            
+            if (targetCard) {
+                const audioId = targetCard.dataset.audioId;
+                if (audioId) {
+                    const audioElement = document.getElementById(audioId);
+                    if (audioElement) {
+                        const playIcon = targetCard.querySelector('.play-icon');
+                        const pauseIcon = targetCard.querySelector('.pause-icon');
+                        const progressBar = targetCard.querySelector('.music-progress');
+                        const timeDisplay = targetCard.querySelector('.music-time');
+                        
+                        // 根据状态执行相应操作
+                            switch(data.status) {
+                                case 'play':
+                                    // 确保不会在音频正在播放时重复调用play()
+                                    if (audioElement.paused && !isAudioOperationInProgress) {
+                                        console.log('收到播放同步事件，开始播放音频');
+                                        audioElement.play().catch(e => console.error('播放失败:', e));
+                                    } else {
+                                        console.log('音频已经在播放或有其他操作正在进行，忽略同步播放请求');
+                                    }
+                                    if (playIcon) playIcon.style.display = 'none';
+                                    if (pauseIcon) pauseIcon.style.display = 'inline';
+                                    break;
+                                case 'pause':
+                                    // 确保不会在音频已经暂停时重复调用pause()
+                                    if (!audioElement.paused && !isAudioOperationInProgress) {
+                                        console.log('收到暂停同步事件，暂停音频');
+                                        audioElement.pause();
+                                    } else {
+                                        console.log('音频已经暂停或有其他操作正在进行，忽略同步暂停请求');
+                                    }
+                                    if (playIcon) playIcon.style.display = 'inline';
+                                    if (pauseIcon) pauseIcon.style.display = 'none';
+                                    break;
+                                case 'stop':
+                                    if (!isAudioOperationInProgress) {
+                                        console.log('收到停止同步事件，停止音频');
+                                        audioElement.pause();
+                                        audioElement.currentTime = 0;
+                                    } else {
+                                        console.log('有其他音频操作正在进行，忽略同步停止请求');
+                                    }
+                                    if (playIcon) playIcon.style.display = 'inline';
+                                    if (pauseIcon) pauseIcon.style.display = 'none';
+                                    if (progressBar) progressBar.style.width = '0%';
+                                if (timeDisplay) timeDisplay.textContent = '0:00';
+                                break;
+                        }
+                    }
+                }
+                
+                // 显示同步通知
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message music-notification';
+                
+                const messageHeader = document.createElement('div');
+                messageHeader.className = 'message-header';
+                messageHeader.textContent = '萝卜子';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                let statusText = '';
+                switch(data.status) {
+                    case 'play': statusText = '播放'; break;
+                    case 'pause': statusText = '暂停'; break;
+                    case 'stop': statusText = '停止'; break;
+                }
+                
+                messageContent.textContent = `${data.played_by} 已${statusText}音乐: ${data.music.title} - ${data.music.artist}`;
+                
+                messageDiv.appendChild(messageHeader);
+                messageDiv.appendChild(messageContent);
+                
+                document.getElementById('messages').appendChild(messageDiv);
+                scrollToBottom();
+            }
+        });
+        
+        // 处理错误事件
+        socket.on('error', function(error) {
+            console.error('Socket错误:', error);
+            alert('发生错误: ' + (error.message || '未知错误'));
+        });
+
+        function scrollToBottom() {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // 初始化页面
+        window.addEventListener('load', function() {
+            document.getElementById('message-input').focus();
+            
+            // 确保socket连接已经建立
+            if (!socket.connected) {
+                console.log('重新连接Socket.IO...');
+                socket.connect();
+            }
+            
+            // 移除任何可能存在的残留模态框
+            let modal = document.getElementById('input-modal');
+            if (modal) {
+                modal.remove();
+            }
+        });
+    </script>
+</body>
+</html>
